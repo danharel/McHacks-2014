@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">MailMate</string>
+    <string name="welcome">
+        Welcome to this unnamed app! All emails are sent from "test@example.com" for now. \n \n
+        The service we are using, SendGrid, has yet to provision my account, so emails might not actually send. \n \n
+        K, thx bai!
+    </string>
+    <string name="action_settings">Settings</string>
+    <string name="send">Send</string>
+    <string name="subject">Subject</string>
+    <string name="to">To</string>
+
+</resources>
