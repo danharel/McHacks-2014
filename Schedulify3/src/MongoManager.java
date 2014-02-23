@@ -67,14 +67,26 @@ public class MongoManager {
 		return false;
 	}
 
+	/**
+	 * Removes a user from the database
+	 * 
+	 * @param name	The name of the user to be removed
+	 * @return		The user that was removed
+	 */
 	public BasicDBObject removeContact(String name) {
+		try {
+			BasicDBObject curr = new BasicDBObject("name", name);
+			curr = (BasicDBObject) contacts.findOne(curr);
 		
-		BasicDBObject curr = new BasicDBObject("name", name);
-		curr = (BasicDBObject) contacts.findOne(curr);
+			contacts.remove( new BasicDBObject("name", name));
 		
-		contacts.remove( new BasicDBObject("name", name));
+			return curr;
+		}
+		catch (Exception e) {
+			System.out.println("User does not exist");
+			return null;
+		}
 		
-		return curr;
 	}
 	
 	/**

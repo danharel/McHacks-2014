@@ -1,4 +1,4 @@
-package com.example.mailmate.app;
+//package com.example.mailmate.app;
 
 import com.github.sendgrid.SendGrid;
 
