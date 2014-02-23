@@ -1,15 +1,14 @@
 apply plugin: 'android'
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion "19.0.1"
+    compileSdkVersion 17
+    buildToolsVersion "19.0.0"
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 18
-        versionCode 1
-        versionName "1.0"
+        targetSdkVersion 17
     }
+
     buildTypes {
         release {
             runProguard false
@@ -18,6 +17,8 @@ android {
     }
 }
 
+
+
 repositories {
     mavenCentral()
 }
@@ -25,4 +26,6 @@ repositories {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.sendgrid:sendgrid-java:0.1.2'
+    compile files('libs/android-support-v4.jar')
+    compile project(':libraries:facebook')
 }

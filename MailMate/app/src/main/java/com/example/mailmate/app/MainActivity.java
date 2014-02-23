@@ -1,20 +1,31 @@
 package com.example.mailmate.app;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+
+import com.facebook.Session;
+import com.facebook.SessionState;
+
+
+import android.provider.ContactsContract;
+import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class MainActivity extends Activity {
+public class MainActivity extends FragmentActivity {
 
     EditText to;
     EditText subject;
     EditText msg;
 
     SendMail sendMail;
+
+    private MainFragment mainFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +37,21 @@ public class MainActivity extends Activity {
         to = (EditText)findViewById(R.id.email);
         subject = (EditText)findViewById(R.id.subject);
         msg = (EditText)findViewById(R.id.msg);
+
+        if (savedInstanceState == null) {
+            // Add the fragment on initial activity setup
+            mainFragment = new MainFragment();
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(android.R.id.content, mainFragment)
+                    .commit();
+        } else {
+            // Or set the fragment from restored state info
+            mainFragment = (MainFragment) getSupportFragmentManager()
+                    .findFragmentById(android.R.id.content);
+        }
+
+
     }
 
 
@@ -62,6 +88,37 @@ public class MainActivity extends Activity {
 
         SendMail.send(to, subject, msg);
 
+
+    }
+
+    public void selectContacts(View v) {
+        Intent i = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+        super.startActivityForResult(i, 1001);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // TODO Auto-generated method stub
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case 1001:
+
+                if (resultCode == Activity.RESULT_OK) {
+
+                    Cursor s = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+                            null, null, null);
+
+                    String phoneNum = s.getString(s.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                    Toast.makeText(getBaseContext(), phoneNum, Toast.LENGTH_LONG).show();
+                    to.setText(phoneNum);
+                    to.setHint("");
+
+                }
+
+                break;
+
+        }
 
     }
 

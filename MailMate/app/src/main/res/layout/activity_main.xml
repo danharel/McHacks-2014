@@ -45,15 +45,32 @@
         android:lines="8"
         android:gravity="top|left"
 
-        />\
+        />
 
     <Button
         android:id="@+id/send"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="sendNow"
-        android:hint="@string/send"
+        android:text="@string/send"
         android:layout_below="@id/msg"/>
+
+    <Button
+        android:id="@+id/contacts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="selectContacts"
+        android:text="@string/select_contacts"
+        android:layout_below="@id/send"/>
+
+    <com.facebook.widget.LoginButton
+        android:id="@+id/authButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="30dp"
+        android:layout_below="@id/contacts"
+        />
 
 
 
