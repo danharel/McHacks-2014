@@ -11,7 +11,7 @@ import com.mongodb.ServerAddress;
 import java.util.Arrays;
 import java.util.ArrayList;
 
-/*
+/**
  * Wrapper class for MongoDB
  */
 public class MongoManager {
@@ -22,7 +22,7 @@ public class MongoManager {
 
 	TwilioWrapper twilio;
 
-	/*
+	/**
 	 * Creates new MongoManager object
 	 */
 	public MongoManager() {
@@ -37,14 +37,14 @@ public class MongoManager {
 		twilio = new TwilioWrapper();
 	}
 
-	/*
+	/**
 	 * Adds a new contact to the database
 	 * 
-	 * @param	String name		Name of the contact
-	 * @param	ArrayList<String> emails	ArrayList of emails used by the user
-	 * @param	ArrayList<String> numbers	ArrayList of numbers used by the user
+	 * @param	String name						Name of the contact
+	 * @param	ArrayList<String> emails		ArrayList of emails used by the user
+	 * @param	ArrayList<String> numbers		ArrayList of numbers used by the user
 	 * @param	ArrayList<String> FBusernames	ArrayList of Facebook usernames used by the user
-	 * @param	ArrayList<String> groups	ArrayList of groups the user is in.
+	 * @param	ArrayList<String> groups		ArrayList of groups the user is in.
 	 */
 	public void addContact(String name, ArrayList<String> emails, ArrayList<String> numbers,
 			ArrayList<String> FBusernames, ArrayList<String> groups) {
@@ -65,6 +65,16 @@ public class MongoManager {
 		}
 	}
 
+	/**
+	 * Sends a message to a specified group
+	 * 
+	 * @param	String group					The group to send the message to
+	 * @param	String message					The message to send
+	 * @param	ArrayList<String> methods		The methods of communication to use
+	 * 												-"phone"
+	 * 												-"email"
+	 * 												-"facebook"
+	 */
 	public void sendGroup(String group, String message, ArrayList<String> methods) {
 		
 		/*BasicDBObject query = new BasicDBObject(group, new BasicDBObject(new BasicDBObject("$size", new BasicDBObject("$neq", 0) )));
@@ -116,7 +126,7 @@ public class MongoManager {
 
 		System.out.println("Hello");
 
-		String[] lol = new String[10];
+		//String[] lol = new String[10];
 		//String[] groups = { "Yes", "No" };
 		
 		ArrayList<String> groups = new ArrayList<String>();
