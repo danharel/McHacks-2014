@@ -1,5 +1,3 @@
-package com.example.mailmate.app;
-
 import java.util.TimerTask;
 
 public class Scheduler extends TimerTask {

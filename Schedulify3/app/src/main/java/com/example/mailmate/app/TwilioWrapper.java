@@ -1,4 +1,4 @@
-package com.example.mailmate.app; /**
+/**
  * Created by Edmund on 2/22/14.
  */
 import java.util.*;
