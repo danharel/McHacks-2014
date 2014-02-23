@@ -1,3 +1,5 @@
+package com.example.mailmate.app;
+
 import com.mongodb.*;
 
 import java.util.Arrays;
@@ -106,7 +108,7 @@ public class MongoManager {
     {
         if (contactName == null) return false;
 
-        //Just in case the user typed it wrong, let's tell them
+        /*//Just in case the user typed it wrong, let's tell them
         switch(updatedField)
         {
         	case "groups":
@@ -121,7 +123,7 @@ public class MongoManager {
                 contacts.update(query, change);
 
             return true;
-        }
+        }*/
 
         System.out.println("Use the right 'updatedField' name!");
         return false;
@@ -335,7 +337,7 @@ public class MongoManager {
         return contactList;
     }
 	
-	/**
+hytpooki	/**
 	 * Sends a message to a specified group
 	 * 
 	 * @param	group					The group to send the message to

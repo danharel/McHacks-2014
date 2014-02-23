@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">MailMate</string>
-    <string name="welcome">        Welcome to this unnamed app! All emails are sent from "test@example.com" for now. \n \n
+    <string name="welcome">        Welcome to MailMate! All emails are sent from "test@example.com" for now. \n \n
         This app is for testing purposes. DO NOT ABUSE IT.</string>
     <string name="action_settings">Settings</string>
     <string name="send">Send</string>

@@ -1,5 +1,5 @@
-/**
- *
+package com.example.mailmate.app;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
@@ -62,4 +62,4 @@ public class MainActivity extends Activity {
 }
 
 
- */
+

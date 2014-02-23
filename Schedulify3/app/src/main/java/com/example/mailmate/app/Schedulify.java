@@ -1,3 +1,4 @@
+package com.example.mailmate.app;
 
 public class Schedulify {
 

@@ -1,3 +1,5 @@
+package com.example.mailmate.app;
+
 import java.util.ArrayList;
 
 /**
