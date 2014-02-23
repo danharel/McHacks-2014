@@ -46,17 +46,37 @@ public class MongoManager {
 	 * @param	ArrayList<String> FBusernames	ArrayList of Facebook usernames used by the user
 	 * @param	ArrayList<String> groups		ArrayList of groups the user is in.
 	 */
-	public void addContact(String name, ArrayList<String> emails, ArrayList<String> numbers,
+	public boolean addContact(String name, ArrayList<String> emails, ArrayList<String> numbers,
 			ArrayList<String> FBusernames, ArrayList<String> groups) {
-		BasicDBObject newContact = new BasicDBObject("name", name);
-		newContact.append("emails", emails);
-		newContact.append("numbers", numbers);
-		newContact.append("facebook", FBusernames);
-		newContact.append("groups", groups);
+		
+		try{
+			contacts.find( new BasicDBObject("name", name)).next();
+		}
+		catch (Exception e) {
+		
+			BasicDBObject newContact = new BasicDBObject("name", name);
+			newContact.append("emails", emails);
+			newContact.append("numbers", numbers);
+			newContact.append("facebook", FBusernames);
+			newContact.append("groups", groups);
 
-		contacts.insert(newContact);
+			contacts.insert(newContact);
+			
+			return true;
+		}
+		return false;
 	}
 
+	public BasicDBObject removeContact(String name) {
+		
+		BasicDBObject curr = new BasicDBObject("name", name);
+		curr = (BasicDBObject) contacts.findOne(curr);
+		
+		contacts.remove( new BasicDBObject("name", name));
+		
+		return curr;
+	}
+	
 	/**
 	 * Prints out all contacts saved
 	 */
@@ -193,12 +213,18 @@ public class MongoManager {
 		groups.add("Yes");
 		groups.add("No");
 
-		test.addContact("Dan", new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), groups );
+		System.out.println(test.addContact("Dan", new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), groups ));
+		System.out.println(test.addContact("Dan", new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), groups ));
 
 		ArrayList<String> methods = new ArrayList<String>();
 		methods.add("phone");
 		methods.add("facebook");
 		test.sendGroup("Yes", "Hello", "Hello", methods);
+		
+		test.removeContact("Dan");
+		
+		System.out.println("Users: ");
+		test.printContacts();
 
 		System.out.println("Hello");
 
