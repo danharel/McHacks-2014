@@ -11,6 +11,9 @@ import com.mongodb.ServerAddress;
 import java.util.Arrays;
 import java.util.ArrayList;
 
+/*
+ * Wrapper class for MongoDB
+ */
 public class MongoManager {
 
 	MongoClient mongoClient;
@@ -19,6 +22,9 @@ public class MongoManager {
 
 	TwilioWrapper twilio;
 
+	/*
+	 * Creates new MongoManager object
+	 */
 	public MongoManager() {
 		try {
 			mongoClient = new MongoClient("localhost");
@@ -31,8 +37,17 @@ public class MongoManager {
 		twilio = new TwilioWrapper();
 	}
 
-	public void addContact(String name, String[] emails, String[] numbers,
-			String[] FBusernames, String[] groups) {
+	/*
+	 * Adds a new contact to the database
+	 * 
+	 * @param	String name		Name of the contact
+	 * @param	ArrayList<String> emails	ArrayList of emails used by the user
+	 * @param	ArrayList<String> numbers	ArrayList of numbers used by the user
+	 * @param	ArrayList<String> FBusernames	ArrayList of Facebook usernames used by the user
+	 * @param	ArrayList<String> groups	ArrayList of groups the user is in.
+	 */
+	public void addContact(String name, ArrayList<String> emails, ArrayList<String> numbers,
+			ArrayList<String> FBusernames, ArrayList<String> groups) {
 		BasicDBObject newContact = new BasicDBObject("name", name);
 		newContact.append("emails", emails);
 		newContact.append("numbers", numbers);
@@ -63,9 +78,9 @@ public class MongoManager {
 		
 		while (cursor.hasNext()){
 			BasicDBObject curr = (BasicDBObject)cursor.next();
+			System.out.println(curr);
 			//Send a message through all methods of communication specified in "methods" 
 			for (int i = 0; i < methods.size(); i++) {
-				System.out.println(curr);
 				//Send a message to each location specified in the given method's array
 				if(methods.get(i).equals("phone")) {
 					for (int j = 0; j < ((ArrayList<String>) curr.get("numbers")).size(); j++) {
@@ -102,9 +117,14 @@ public class MongoManager {
 		System.out.println("Hello");
 
 		String[] lol = new String[10];
-		String[] groups = { "Yes", "No" };
+		//String[] groups = { "Yes", "No" };
+		
+		ArrayList<String> groups = new ArrayList<String>();
+		groups.add("Yes");
+		groups.add("No");
 
-		test.addContact("Dan", lol, lol, lol, groups);
+		//test.addContact("Dan", lol, lol, lol, groups);
+		test.addContact("Dan", new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), groups );
 
 		ArrayList<String> methods = new ArrayList<String>();
 		methods.add("phone");
