@@ -1,16 +1,8 @@
-import com.mongodb.MongoClient;
-import com.mongodb.MongoException;
-import com.mongodb.WriteConcern;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
-import com.mongodb.DBCursor;
-import com.mongodb.ServerAddress;
+import com.mongodb.*;
 
 import java.util.Arrays;
 import java.util.ArrayList;
-import java.util.Set;
+import java.util.HashSet;
 
 /*
  * Wrapper class for MongoDB
@@ -20,20 +12,22 @@ public class MongoManager {
     public static final String BRIAN_SITE = "cloud.brianyang.me";
     public static final int MONGO_SOCKET = 27017;
 
-    MongoClient mongoClient;
-    DB db;
-    DBCollection contacts;
+    private MongoClient mongoClient;
+    private DB db;
+    private DBCollection contacts;
 
-    TwilioWrapper twilio;
-    
-    Set<String> groups;
+    private TwilioWrapper twilio;
+
+    private HashSet<String> groups;
 
     /*
      * Creates new MongoManager object
      */
     public MongoManager() {
+
+        //MongoDB setup
         try {
-            //mongoClient = new MongoClient("localhost");
+            //Connect to Brian's server
             mongoClient = new MongoClient(BRIAN_SITE, MONGO_SOCKET);
         } catch (Exception e) {
             Thread.currentThread().getStackTrace();
@@ -41,9 +35,18 @@ public class MongoManager {
         db = mongoClient.getDB("mongoDB");
         contacts = db.getCollection("contacts");
 
+        //Set of group names, also important for Mongo
+        groups = new HashSet<String>();
+
+        //Twilio setup
         twilio = new TwilioWrapper();
+
     }
 
+    /**
+     *
+     * @return
+     */
     public ArrayList<Contact> getAllContacts()
         {
             DBCursor cursor = contacts.find();
@@ -58,6 +61,11 @@ public class MongoManager {
             return wrappedContacts;
     }
 
+    /**
+     *
+     * @param contactName
+     * @return
+     */
     public BasicDBObject getContactByName(String contactName)
     {
         BasicDBObject query = new BasicDBObject("name", contactName);
@@ -68,6 +76,11 @@ public class MongoManager {
             return null;
     }
 
+    /**
+     *
+     * @param contact
+     * @return
+     */
     public Contact DBObjectToContact(BasicDBObject contact)
     {
         Contact c = new Contact();
@@ -110,7 +123,7 @@ public class MongoManager {
             return true;
         }
 
-        System.out.println("Use the right 'updatedField' name");
+        System.out.println("Use the right 'updatedField' name!");
         return false;
 
     }
@@ -146,10 +159,13 @@ public class MongoManager {
 			newContact.append("groups", groups);
 
 			contacts.insert(newContact);
-			
-			for (int i = 0; i < groups.size(); i++)
-				this.groups.add(groups.get(i));
-			
+
+            //Add the groups this Contact belongs to to the set
+            for (String newGroup : groups)
+            {
+                this.groups.add(newGroup);
+            }
+
 			return true;
 		}
 		return false;
@@ -163,18 +179,30 @@ public class MongoManager {
 	 */
 	public BasicDBObject removeContact(String name) {
 		try {
+            //Remove the object and save what group it is in
 			BasicDBObject curr = new BasicDBObject("name", name);
-			curr = (BasicDBObject) contacts.findOne(curr);
-		
-			contacts.remove( new BasicDBObject("name", name));
-		
+			curr = (BasicDBObject)contacts.findOne(curr);
+            ArrayList<String> objGroups = (ArrayList<String>)curr.get("groups");
+			contacts.remove(new BasicDBObject("name", name));
+
+            //Test to see if anything on MongoDB is associated with each
+            //group is the ArrayList now that it's gone:
+            for (String group : objGroups)
+            {
+                if (listContactsInGroup(group).size() == 0)
+                {
+                    groups.remove(group);
+                }
+            }
+
 			return curr;
 		}
 		catch (Exception e) {
 			System.out.println("User does not exist");
 			return null;
 		}
-		
+
+
 	}
 	
 	/**
@@ -197,7 +225,8 @@ public class MongoManager {
 	 * @param message	Message to send.
 	 * @param method	Specified method of communication
 	 */
-	public void messageUser(BasicDBObject user, String subject, String message, String method) {
+	public void messageUser(BasicDBObject user, String subject,
+                            String message, String method) {
 		
 		BasicDBObject curr = user;
 		
@@ -205,23 +234,30 @@ public class MongoManager {
 		if (method.equals("phone")) {
 			//Send to all numbers
 			for (int j = 0; j < ((ArrayList<String>) curr.get("numbers")).size(); j++) {
-				System.out.println("Sending a txt to " + ((ArrayList<String>) curr.get("numbers")).get(j));
-				//twilio.addMessage( ((ArrayList<String>) curr.get("numbers")).get(j), message);
+				System.out.println("Sending a txt to " +
+                        ((ArrayList<String>) curr.get("numbers")).get(j));
+				//twilio.addMessage( ((ArrayList<String>) curr.get("numbers")).
+				// get(j), message);
 			}
 			//twilio.sendBatch();
 		}
 		else if (method.equals("email")) {
 			//Send to all emails
 			for (int j = 0; j < ((ArrayList<String>) curr.get("emails")).size(); j++) {
-				System.out.println("Sending an email to " + ((ArrayList<String>) curr.get("emails")).get(j));
-				//SendMail.send( ((ArrayList<String>) curr.get("emails")).get(j), subject, message);
+				System.out.println("Sending an email to " +
+                        ((ArrayList<String>) curr.get("emails")).get(j));
+				//SendMail.send( ((ArrayList<String>) curr.get("emails")).
+				// get(j), subject, message);
 			}
 		}
 		else if (method.equals("facebook")) {
 			//Send to all Facebook accounts
-			for (int j = 0; j < ((ArrayList<String>) curr.get("facebook")).size(); j++) {
-				System.out.println("Sending a private message to " + ((ArrayList<String>) curr.get("facebook")).get(j));
-				//facebook.PM( ((ArrayList<String>) curr.get("FBusernames")).get(j), message);
+			for (int j = 0;
+                 j < ((ArrayList<String>) curr.get("facebook")).size(); j++) {
+				System.out.println("Sending a private message to " +
+                        ((ArrayList<String>) curr.get("facebook")).get(j));
+				//facebook.PM( ((ArrayList<String>) curr.get("FBusernames")).
+				// get(j), message);
 			}
 		}
 		else {
@@ -243,11 +279,61 @@ public class MongoManager {
 		messageUser(user, subject, message, "facebook");
 		
 	}
-	
+
+    /**
+     * Prints out a list of every group
+     */
 	public void printGroups() {
-		for (String group : groups)
+		for (String group : getGroupList())
 			System.out.println(group);
 	}
+
+    /**
+     * Returns a list of every group
+     * @return a list of every group
+     */
+    public ArrayList<String> getGroupList()
+    {
+        ArrayList<String> allGroups = new ArrayList<>();
+        for (String group : groups)
+        {
+            allGroups.add(group);
+        }
+        return allGroups;
+    }
+
+    public ArrayList<BasicDBObject> listContactsInGroup(String groupName)
+    {
+        ArrayList<BasicDBObject> contactList = new ArrayList<>();
+
+        BasicDBObject query = new BasicDBObject("groups", groupName);
+        DBCursor cursor = contacts.find(query);
+        while (cursor.hasNext()){
+            BasicDBObject curr = (BasicDBObject)cursor.next();
+            contactList.add(curr);
+        }
+        return contactList;
+    }
+
+    public ArrayList<Contact> listContactObjInGroup(String groupName)
+    {
+        ArrayList<Contact> contactList = new ArrayList<>();
+        for (BasicDBObject dbObject : listContactsInGroup(groupName))
+        {
+            contactList.add(DBObjectToContact(dbObject));
+        }
+        return contactList;
+    }
+
+    public ArrayList<String> listContactNamesInGroup(String groupName)
+    {
+        ArrayList<String> contactList = new ArrayList<>();
+        for (Contact contactObj : listContactObjInGroup(groupName))
+        {
+            contactList.add(contactObj.getName());
+        }
+        return contactList;
+    }
 	
 	/**
 	 * Sends a message to a specified group
@@ -259,19 +345,17 @@ public class MongoManager {
 	 * 												-"email"
 	 * 												-"facebook"
 	 */
-	public void sendGroup(String group, String subject, String message, ArrayList<String> methods) {
-		
-		BasicDBObject query = new BasicDBObject("groups", group );
-		DBCursor cursor = contacts.find(query);
-		
-		while (cursor.hasNext()){
-			BasicDBObject curr = (BasicDBObject)cursor.next();
-			System.out.println(curr);
-			messageUser(curr, subject, message);
+	public void sendGroup(String group, String subject,
+                          String message, ArrayList<String> methods) {
+        ArrayList<BasicDBObject> contactsInGroup = listContactsInGroup(group);
+		for (BasicDBObject currentContact : contactsInGroup)
+        {
+			System.out.println(currentContact);
+			messageUser(currentContact, subject, message);
 		}
-			
 	}
 
+    //Entry point for tests
     public static void main(String[] args) {
 
         MongoManager test = new MongoManager();
@@ -297,6 +381,13 @@ public class MongoManager {
         //Tell us about Dan
         System.out.println(test.getContactByName("Dan").toString());
 
+        //No more Dan.
+        System.out.println(test.removeContact("Dan"));
+
+        //Test now...
+        System.out.println(test.groups.size());
+
+        test.mongoClient.dropDatabase("mongoDB");
 
     }
 
