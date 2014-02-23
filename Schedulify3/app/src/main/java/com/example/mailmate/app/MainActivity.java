@@ -5,19 +5,16 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 
-import com.facebook.Session;
-import com.facebook.SessionState;
-
 
 import android.provider.ContactsContract;
-import android.support.v4.app.FragmentActivity;
+import android.app.Activity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends Activity {
 
     EditText to;
     EditText subject;

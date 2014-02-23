@@ -5,14 +5,14 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.support.v4.app.FragmentActivity;
+import android.app.Fragment;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class EmailActivity extends FragmentActivity {
+public class EmailActivity extends Activity {
 
     EditText to;
     EditText subject;
@@ -32,18 +32,7 @@ public class EmailActivity extends FragmentActivity {
         subject = (EditText)findViewById(R.id.subject);
         msg = (EditText)findViewById(R.id.msg);
 
-        if (savedInstanceState == null) {
-            // Add the fragment on initial activity setup
-            mainFragment = new MainFragment();
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .add(android.R.id.content, mainFragment)
-                    .commit();
-        } else {
-            // Or set the fragment from restored state info
-            mainFragment = (MainFragment) getSupportFragmentManager()
-                    .findFragmentById(android.R.id.content);
-        }
+
 
 
     }
