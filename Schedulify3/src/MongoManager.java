@@ -244,6 +244,11 @@ public class MongoManager {
 		
 	}
 	
+	public void printGroups() {
+		for (String group : groups)
+			System.out.println(group);
+	}
+	
 	/**
 	 * Sends a message to a specified group
 	 * 
