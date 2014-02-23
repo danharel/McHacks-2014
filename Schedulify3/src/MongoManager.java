@@ -109,10 +109,9 @@ public class MongoManager {
 	 * @param message	Message to send.
 	 * @param method	Specified method of communication
 	 */
-	public void messageUser(String name, String subject, String message, String method) {
+	public void messageUser(BasicDBObject user, String subject, String message, String method) {
 		
-		BasicDBObject curr = new BasicDBObject("name", name);
-		curr = (BasicDBObject) contacts.findOne(curr);
+		BasicDBObject curr = user;
 		
 		//Send a message through all methods of communication specified in "methods" 
 		if (method.equals("phone")) {
@@ -149,11 +148,11 @@ public class MongoManager {
 	 * @param subject	Subject of the message
 	 * @param message	Message to send
 	 */
-	public void messageUser(String name, String subject, String message) {
+	public void messageUser(BasicDBObject user, String subject, String message) {
 		
-		messageUser(name, subject, message, "phone");
-		messageUser(name, subject, message, "email");
-		messageUser(name, subject, message, "facebook");
+		messageUser(user, subject, message, "phone");
+		messageUser(user, subject, message, "email");
+		messageUser(user, subject, message, "facebook");
 		
 	}
 	
@@ -181,6 +180,11 @@ public class MongoManager {
 		while (cursor.hasNext()){
 			BasicDBObject curr = (BasicDBObject)cursor.next();
 			System.out.println(curr);
+			messageUser(curr, subject, message);
+		}
+			
+			
+			/*
 			//Send a message through all methods of communication specified in "methods" 
 			for (int i = 0; i < methods.size(); i++) {
 				//Send a message to each location specified in the given method's array
@@ -205,10 +209,9 @@ public class MongoManager {
 				}
 				else {
 					System.out.println("Invalid method of communication");
-				}
+				} 
 			
-			}
-		}
+			}*/
 	}
 
 	public static void main(String[] args) {
@@ -225,18 +228,22 @@ public class MongoManager {
 		groups.add("Yes");
 		groups.add("No");
 
+		//Test whether or not you can add the same person twice.
+		//Should not be able to.
 		System.out.println(test.addContact("Dan", new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), groups ));
 		System.out.println(test.addContact("Dan", new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), groups ));
-
+		//Success.
+		
 		ArrayList<String> methods = new ArrayList<String>();
 		methods.add("phone");
 		methods.add("facebook");
 		test.sendGroup("Yes", "Hello", "Hello", methods);
 		
-		test.removeContact("Dan");
-		
+		//Test removeContact()
+		test.removeContact("Dan");		
 		System.out.println("Users: ");
 		test.printContacts();
+		//Success
 
 		System.out.println("Hello");
 
