@@ -1,10 +1,10 @@
-package com.example.mailmate.app;
-
+/**
+ *
 import com.github.sendgrid.SendGrid;
 
 /**
  * Created by Brian on 2/22/14.
- */
+
 public class SendMail {
 
     public static void send(final String to, final String subject, final String msg) {
@@ -33,3 +33,5 @@ public class SendMail {
 
     }
 }
+
+ */
