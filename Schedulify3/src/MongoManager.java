@@ -10,6 +10,7 @@ import com.mongodb.ServerAddress;
 
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Set;
 
 /*
  * Wrapper class for MongoDB
@@ -24,6 +25,8 @@ public class MongoManager {
     DBCollection contacts;
 
     TwilioWrapper twilio;
+    
+    Set<String> groups;
 
     /*
      * Creates new MongoManager object
@@ -93,10 +96,11 @@ public class MongoManager {
         //Just in case the user typed it wrong, let's tell them
         switch(updatedField)
         {
+        	case "groups":
+        		groups.add((String)newValue);
             case "name":
             case "emails":
             case "facebook":
-            case "groups":
             case "numbers":
                 BasicDBObject change = new BasicDBObject("$set",
                         new BasicDBObject().append(updatedField, newValue));
@@ -111,6 +115,12 @@ public class MongoManager {
 
     }
 
+    public boolean addContact(String name) {
+    	return addContact(name, new ArrayList<String>(), 
+    			new ArrayList<String>(), new ArrayList<String>(), 
+    			new ArrayList<String>());
+    }
+    
 	/**
 	 * Adds a new contact to the database
 	 * 
@@ -120,8 +130,9 @@ public class MongoManager {
 	 * @param	FBusernames	ArrayList of Facebook usernames used by the user
 	 * @param	groups		ArrayList of groups the user is in.
 	 */
-	public boolean addContact(String name, ArrayList<String> emails, ArrayList<String> numbers,
-			ArrayList<String> FBusernames, ArrayList<String> groups) {
+	public boolean addContact(String name, ArrayList<String> emails, 
+			ArrayList<String> numbers, ArrayList<String> FBusernames, 
+			ArrayList<String> groups) {
 		
 		try{
 			contacts.find( new BasicDBObject("name", name)).next();
@@ -135,6 +146,9 @@ public class MongoManager {
 			newContact.append("groups", groups);
 
 			contacts.insert(newContact);
+			
+			for (int i = 0; i < groups.size(); i++)
+				this.groups.add(groups.get(i));
 			
 			return true;
 		}
