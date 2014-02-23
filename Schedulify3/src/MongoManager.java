@@ -57,14 +57,74 @@ public class MongoManager {
 		contacts.insert(newContact);
 	}
 
+	/**
+	 * Prints out all contacts saved
+	 */
 	public void printContacts() {
+
 		DBCursor cursor = contacts.find();
 
 		while (cursor.hasNext()) {
 			System.out.println(cursor.next());
 		}
 	}
-
+	
+	/**
+	 * Sends message to specified user via specified form of communication. 
+	 * 
+	 * @param name		Name of user to message.
+	 * @param subject	Subject of message.
+	 * @param message	Message to send.
+	 * @param method	Specified method of communication
+	 */
+	public void messageUser(String name, String subject, String message, String method) {
+		
+		BasicDBObject curr = new BasicDBObject("name", name);
+		curr = (BasicDBObject) contacts.findOne(curr);
+		
+		//Send a message through all methods of communication specified in "methods" 
+		if (method.equals("phone")) {
+			//Send to all numbers
+			for (int j = 0; j < ((ArrayList<String>) curr.get("numbers")).size(); j++) {
+				System.out.println("Sending a txt to " + ((ArrayList<String>) curr.get("numbers")).get(j));
+				//twilio.addMessage( ((ArrayList<String>) curr.get("numbers")).get(j), message);
+			}
+			//twilio.sendBatch();
+		}
+		else if (method.equals("email")) {
+			//Send to all emails
+			for (int j = 0; j < ((ArrayList<String>) curr.get("emails")).size(); j++) {
+				System.out.println("Sending an email to " + ((ArrayList<String>) curr.get("emails")).get(j));
+				//SendMail.send( ((ArrayList<String>) curr.get("emails")).get(j), subject, message);
+			}
+		}
+		else if (method.equals("facebook")) {
+			//Send to all Facebook accounts
+			for (int j = 0; j < ((ArrayList<String>) curr.get("facebook")).size(); j++) {
+				System.out.println("Sending a private message to " + ((ArrayList<String>) curr.get("facebook")).get(j));
+				//facebook.PM( ((ArrayList<String>) curr.get("FBusernames")).get(j), message);
+			}
+		}
+		else {
+			System.out.println("Invalid method");
+		}
+	}
+	
+	/**
+	 * Sends a message to specific user via all methods of communication
+	 * 
+	 * @param name		Name of the user to message 
+	 * @param subject	Subject of the message
+	 * @param message	Message to send
+	 */
+	public void messageUser(String name, String subject, String message) {
+		
+		messageUser(name, subject, message, "phone");
+		messageUser(name, subject, message, "email");
+		messageUser(name, subject, message, "facebook");
+		
+	}
+	
 	/**
 	 * Sends a message to a specified group
 	 * 
@@ -75,7 +135,7 @@ public class MongoManager {
 	 * 												-"email"
 	 * 												-"facebook"
 	 */
-	public void sendGroup(String group, String message, ArrayList<String> methods) {
+	public void sendGroup(String group, String subject, String message, ArrayList<String> methods) {
 		
 		/*BasicDBObject query = new BasicDBObject(group, new BasicDBObject(new BasicDBObject("$size", new BasicDBObject("$neq", 0) )));
 		DBCursor cursor = contacts.find(query);
@@ -95,20 +155,20 @@ public class MongoManager {
 				if(methods.get(i).equals("phone")) {
 					for (int j = 0; j < ((ArrayList<String>) curr.get("numbers")).size(); j++) {
 							System.out.println("Sending a txt to " + ((ArrayList<String>) curr.get("numbers")).get(j));
-							//twilio.addMessage( ((ArrayList<String>) curr.get("numbers"))[j], message);
+							//twilio.addMessage( ((ArrayList<String>) curr.get("numbers")).get(j), message);
 					}
 					//twilio.sendBatch();
 				}
 				else if (methods.get(i).equals( "email")) {
 					for (int j = 0; j < ((ArrayList<String>) curr.get("emails")).size(); j++) {
 						System.out.println("Sending an email to " + ((ArrayList<String>) curr.get("emails")).get(j));
-						//sendgrid.email((ArrayList<String>) curr.get("emails"))[j], message);
+						SendMail.send( ((ArrayList<String>) curr.get("emails")).get(j), subject, message);
 					}
 				}
 				else if (methods.get(i).equals("facebook")) {
 					for (int j = 0; j < ((ArrayList<String>) curr.get("facebook")).size(); j++) {
 						System.out.println("Sending a private message to " + ((ArrayList<String>) curr.get("facebook")).get(j));
-						//facebook.PM((ArrayList<String>) curr.get("FBusernames"))[j], message);
+						//facebook.PM( ((ArrayList<String>) curr.get("FBusernames")).get(j), message);
 					}
 				}
 				else {
@@ -133,13 +193,12 @@ public class MongoManager {
 		groups.add("Yes");
 		groups.add("No");
 
-		//test.addContact("Dan", lol, lol, lol, groups);
 		test.addContact("Dan", new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), groups );
 
 		ArrayList<String> methods = new ArrayList<String>();
 		methods.add("phone");
 		methods.add("facebook");
-		test.sendGroup("Yes", "Hello", methods);
+		test.sendGroup("Yes", "Hello", "Hello", methods);
 
 		System.out.println("Hello");
 
