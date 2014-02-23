@@ -1,6 +1,4 @@
-/**
- *
-import com.github.sendgrid.SendGrid;
+//import com.github.sendgrid.SendGrid;
 
 /**
  * Created by Brian on 2/22/14.

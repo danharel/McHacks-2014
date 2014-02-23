@@ -41,38 +41,18 @@ public class MongoManager {
         twilio = new TwilioWrapper();
     }
 
-    /*
-     * Adds a new contact to the database
-     *
-     * @param	String name		Name of the contact
-     * @param	ArrayList<String> emails	ArrayList of emails used by the user
-     * @param	ArrayList<String> numbers	ArrayList of numbers used by the user
-     * @param	ArrayList<String> FBusernames	ArrayList of Facebook usernames used by the user
-     * @param	ArrayList<String> groups	ArrayList of groups the user is in.
-     */
-    public void addContact(String name, ArrayList<String> emails, ArrayList<String> numbers,
-                           ArrayList<String> FBusernames, ArrayList<String> groups) {
-        BasicDBObject newContact = new BasicDBObject("name", name);
-        newContact.append("emails", emails);
-        newContact.append("numbers", numbers);
-        newContact.append("facebook", FBusernames);
-        newContact.append("groups", groups);
-
-        contacts.insert(newContact);
-    }
-
     public ArrayList<Contact> getAllContacts()
-    {
-        DBCursor cursor = contacts.find();
-        ArrayList<Contact> wrappedContacts = new ArrayList<Contact>();
+        {
+            DBCursor cursor = contacts.find();
+            ArrayList<Contact> wrappedContacts = new ArrayList<Contact>();
 
-        while (cursor.hasNext()) {
-            BasicDBObject curr = (BasicDBObject)cursor.next();
-            Contact c = DBObjectToContact(curr);
-            wrappedContacts.add(c);
-        }
+            while (cursor.hasNext()) {
+                BasicDBObject curr = (BasicDBObject)cursor.next();
+                Contact c = DBObjectToContact(curr);
+                wrappedContacts.add(c);
+            }
 
-        return wrappedContacts;
+            return wrappedContacts;
     }
 
     public BasicDBObject getContactByName(String contactName)
@@ -131,62 +111,147 @@ public class MongoManager {
 
     }
 
-
-    public void printContacts() {
-        DBCursor cursor = contacts.find();
-
-        while (cursor.hasNext()) {
-            Contact c = new Contact();
-            System.out.println(cursor.next());
-        }
-    }
-
-    public void sendGroup(String group, String message, ArrayList<String> methods) {
+	/**
+	 * Adds a new contact to the database
+	 * 
+	 * @param	name						Name of the contact
+	 * @param	emails		ArrayList of emails used by the user
+	 * @param	numbers		ArrayList of numbers used by the user
+	 * @param	FBusernames	ArrayList of Facebook usernames used by the user
+	 * @param	groups		ArrayList of groups the user is in.
+	 */
+	public boolean addContact(String name, ArrayList<String> emails, ArrayList<String> numbers,
+			ArrayList<String> FBusernames, ArrayList<String> groups) {
 		
-		/*BasicDBObject query = new BasicDBObject(group, new BasicDBObject(new BasicDBObject("$size", new BasicDBObject("$neq", 0) )));
+		try{
+			contacts.find( new BasicDBObject("name", name)).next();
+		}
+		catch (Exception e) {
+		
+			BasicDBObject newContact = new BasicDBObject("name", name);
+			newContact.append("emails", emails);
+			newContact.append("numbers", numbers);
+			newContact.append("facebook", FBusernames);
+			newContact.append("groups", groups);
+
+			contacts.insert(newContact);
+			
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Removes a user from the database
+	 * 
+	 * @param name	The name of the user to be removed
+	 * @return		The user that was removed
+	 */
+	public BasicDBObject removeContact(String name) {
+		try {
+			BasicDBObject curr = new BasicDBObject("name", name);
+			curr = (BasicDBObject) contacts.findOne(curr);
+		
+			contacts.remove( new BasicDBObject("name", name));
+		
+			return curr;
+		}
+		catch (Exception e) {
+			System.out.println("User does not exist");
+			return null;
+		}
+		
+	}
+	
+	/**
+	 * Prints out all contacts saved
+	 */
+	public void printContacts() {
+
+		DBCursor cursor = contacts.find();
+
+		while (cursor.hasNext()) {
+			System.out.println(cursor.next());
+		}
+	}
+	
+	/**
+	 * Sends message to specified user via specified form of communication. 
+	 * 
+	 * @param user		Name of user to message.
+	 * @param subject	Subject of message.
+	 * @param message	Message to send.
+	 * @param method	Specified method of communication
+	 */
+	public void messageUser(BasicDBObject user, String subject, String message, String method) {
+		
+		BasicDBObject curr = user;
+		
+		//Send a message through all methods of communication specified in "methods" 
+		if (method.equals("phone")) {
+			//Send to all numbers
+			for (int j = 0; j < ((ArrayList<String>) curr.get("numbers")).size(); j++) {
+				System.out.println("Sending a txt to " + ((ArrayList<String>) curr.get("numbers")).get(j));
+				//twilio.addMessage( ((ArrayList<String>) curr.get("numbers")).get(j), message);
+			}
+			//twilio.sendBatch();
+		}
+		else if (method.equals("email")) {
+			//Send to all emails
+			for (int j = 0; j < ((ArrayList<String>) curr.get("emails")).size(); j++) {
+				System.out.println("Sending an email to " + ((ArrayList<String>) curr.get("emails")).get(j));
+				//SendMail.send( ((ArrayList<String>) curr.get("emails")).get(j), subject, message);
+			}
+		}
+		else if (method.equals("facebook")) {
+			//Send to all Facebook accounts
+			for (int j = 0; j < ((ArrayList<String>) curr.get("facebook")).size(); j++) {
+				System.out.println("Sending a private message to " + ((ArrayList<String>) curr.get("facebook")).get(j));
+				//facebook.PM( ((ArrayList<String>) curr.get("FBusernames")).get(j), message);
+			}
+		}
+		else {
+			System.out.println("Invalid method");
+		}
+	}
+	
+	/**
+	 * Sends a message to specific user via all methods of communication
+	 * 
+	 * @param user		Name of the user to message
+	 * @param subject	Subject of the message
+	 * @param message	Message to send
+	 */
+	public void messageUser(BasicDBObject user, String subject, String message) {
+		
+		messageUser(user, subject, message, "phone");
+		messageUser(user, subject, message, "email");
+		messageUser(user, subject, message, "facebook");
+		
+	}
+	
+	/**
+	 * Sends a message to a specified group
+	 * 
+	 * @param	group					The group to send the message to
+	 * @param	message					The message to send
+	 * @param	methods		            The methods of communication to use
+	 * 												-"phone"
+	 * 												-"email"
+	 * 												-"facebook"
+	 */
+	public void sendGroup(String group, String subject, String message, ArrayList<String> methods) {
+		
+		BasicDBObject query = new BasicDBObject("groups", group );
 		DBCursor cursor = contacts.find(query);
 		
-		while (cursor.hasNext())
-			System.out.println(cursor.next());*/
-
-        BasicDBObject query = new BasicDBObject("groups", group );
-        DBCursor cursor = contacts.find(query);
-
-        while (cursor.hasNext()){
-            BasicDBObject curr = (BasicDBObject)cursor.next();
-            System.out.println(curr);
-            //Send a message through all methods of communication specified in "methods"
-            for (int i = 0; i < methods.size(); i++) {
-                //Send a message to each location specified in the given method's array
-                if(methods.get(i).equals("phone")) {
-                    for (int j = 0; j < ((ArrayList<String>) curr.get("numbers")).size(); j++) {
-                        System.out.println("Sending a txt to " + ((ArrayList<String>) curr.get("numbers")).get(j));
-                        //twilio.addMessage( ((ArrayList<String>) curr.get("numbers"))[j], message);
-                    }
-                    //twilio.sendBatch();
-                }
-                else if (methods.get(i).equals( "email")) {
-                    for (int j = 0; j < ((ArrayList<String>) curr.get("emails")).size(); j++) {
-                        System.out.println("Sending an email to " +
-                                ((ArrayList<String>) curr.get("emails")).get(j));
-                        //sendgrid.email((ArrayList<String>) curr.get("emails"))[j], message);
-                    }
-                }
-                else if (methods.get(i).equals("facebook")) {
-                    for (int j = 0; j < ((ArrayList<String>) curr.get("facebook")).size(); j++) {
-                        System.out.println("Sending a private message to " +
-                                ((ArrayList<String>) curr.get("facebook")).get(j));
-                        //facebook.PM((ArrayList<String>) curr.get("FBusernames"))[j],
-                        //  message);
-                    }
-                }
-                else {
-                    System.out.println("Invalid method of communication");
-                }
-
-            }
-        }
-    }
+		while (cursor.hasNext()){
+			BasicDBObject curr = (BasicDBObject)cursor.next();
+			System.out.println(curr);
+			messageUser(curr, subject, message);
+		}
+			
+	}
 
     public static void main(String[] args) {
 
