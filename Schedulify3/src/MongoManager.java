@@ -168,12 +168,6 @@ public class MongoManager {
 	 */
 	public void sendGroup(String group, String subject, String message, ArrayList<String> methods) {
 		
-		/*BasicDBObject query = new BasicDBObject(group, new BasicDBObject(new BasicDBObject("$size", new BasicDBObject("$neq", 0) )));
-		DBCursor cursor = contacts.find(query);
-		
-		while (cursor.hasNext())
-			System.out.println(cursor.next());*/
-		
 		BasicDBObject query = new BasicDBObject("groups", group );
 		DBCursor cursor = contacts.find(query);
 		
@@ -183,35 +177,6 @@ public class MongoManager {
 			messageUser(curr, subject, message);
 		}
 			
-			
-			/*
-			//Send a message through all methods of communication specified in "methods" 
-			for (int i = 0; i < methods.size(); i++) {
-				//Send a message to each location specified in the given method's array
-				if(methods.get(i).equals("phone")) {
-					for (int j = 0; j < ((ArrayList<String>) curr.get("numbers")).size(); j++) {
-							System.out.println("Sending a txt to " + ((ArrayList<String>) curr.get("numbers")).get(j));
-							//twilio.addMessage( ((ArrayList<String>) curr.get("numbers")).get(j), message);
-					}
-					//twilio.sendBatch();
-				}
-				else if (methods.get(i).equals( "email")) {
-					for (int j = 0; j < ((ArrayList<String>) curr.get("emails")).size(); j++) {
-						System.out.println("Sending an email to " + ((ArrayList<String>) curr.get("emails")).get(j));
-						SendMail.send( ((ArrayList<String>) curr.get("emails")).get(j), subject, message);
-					}
-				}
-				else if (methods.get(i).equals("facebook")) {
-					for (int j = 0; j < ((ArrayList<String>) curr.get("facebook")).size(); j++) {
-						System.out.println("Sending a private message to " + ((ArrayList<String>) curr.get("facebook")).get(j));
-						//facebook.PM( ((ArrayList<String>) curr.get("FBusernames")).get(j), message);
-					}
-				}
-				else {
-					System.out.println("Invalid method of communication");
-				} 
-			
-			}*/
 	}
 
 	public static void main(String[] args) {
